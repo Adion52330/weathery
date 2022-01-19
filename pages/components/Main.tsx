@@ -200,7 +200,12 @@ const Main = () => {
 
   const fetchData = async (woeid: number) => {
     const response = await fetch(
-      `https://www.metaweather.com/api/location/${woeid.toString()}/`
+      `https://www.metaweather.com/api/location/${woeid.toString()}/`,
+      {
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+        },
+      }
     );
     const data = await response.json();
     setData([data]);
@@ -211,7 +216,13 @@ const Main = () => {
   const fetchWeather = async (e: any) => {
     e.preventDefault();
     const response = await fetch(
-      `https://www.metaweather.com/api/location/search/?query=${searchKey}`
+      `https://www.metaweather.com/api/location/search/?query=${searchKey}`,
+      // add AccessControlOrigin header
+      {
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+        },
+      }
     );
     const data = await response.json();
     setSearch(false);
