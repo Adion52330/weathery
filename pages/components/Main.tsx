@@ -202,6 +202,7 @@ const Main = () => {
     const response = await fetch(
       `https://www.metaweather.com/api/location/${woeid.toString()}/`,
       {
+        mode: "no-cors",
         headers: {
           "Access-Control-Allow-Origin": "https://metaweather.com/api/",
         },
@@ -219,6 +220,7 @@ const Main = () => {
       `https://www.metaweather.com/api/location/search/?query=${searchKey}`,
       // add AccessControlOrigin header
       {
+        mode: "no-cors",
         headers: {
           "Access-Control-Allow-Origin": "https://metaweather.com/api/",
         },
