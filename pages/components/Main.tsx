@@ -203,7 +203,7 @@ const Main = () => {
       `https://www.metaweather.com/api/location/${woeid.toString()}/`,
       {
         headers: {
-          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Origin": "https://metaweather.com/api/",
         },
       }
     );
@@ -220,7 +220,7 @@ const Main = () => {
       // add AccessControlOrigin header
       {
         headers: {
-          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Origin": "https://metaweather.com/api/",
         },
       }
     );
