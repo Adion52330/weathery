@@ -27,7 +27,7 @@ const Main = () => {
     }
   };
   const [celcius, setCelcius] = useState(true);
-  const [search, setSearch] = useState(true);
+  const [search, setSearch] = useState(false);
   const [searchKey, setSearchKey] = useState("");
   const [data, setData] = useState([
     {
@@ -199,7 +199,7 @@ const Main = () => {
 
   const fetchData = async (woeid: any) => {
     const response = await fetch(
-      `http://www.metaweather.com/api/location/${
+      `https://www.metaweather.com/api/location/${
         woeid ? woeid.toString() : "44418"
       }/`
     );
@@ -210,12 +210,12 @@ const Main = () => {
   const fetchWeather = async (e: any) => {
     e.preventDefault();
     const response = await fetch(
-      `http://www.metaweather.com/api/location/search/?query=${searchKey}`
+      `https://www.metaweather.com/api/location/search/?query=${searchKey}`
     );
     const data = await response.json();
     setSearch(false);
     setSearchKey("");
-    return data[0].woeid;
+    fetchData(data[0].woeid)
   };
 
   // create a function to change celcius to farhenreit
