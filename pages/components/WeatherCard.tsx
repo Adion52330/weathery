@@ -1,4 +1,5 @@
 import React from "react";
+import Loader from "./Loader";
 
 const WeatherCard = (props: any) => {
   // create a function to change image according to the weather report
@@ -36,7 +37,13 @@ const WeatherCard = (props: any) => {
       {/* Day */}
       <h5 className="text-center justify-self-start">{props.date}</h5>
       {/* Image */}
-      <img src={changeImage(props.weather)} className="mx-auto " alt="" />
+      {props.loading ? (
+        <>
+          <Loader />
+        </>
+      ) : (
+        <img src={changeImage(props.weather)} className="mx-auto " alt="" />
+      )}
       {/* Min and max temp */}
       <div className="flex justify-between justify-self-end">
         <p className="text-lg text-[#E7E7EB]">

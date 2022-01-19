@@ -1,5 +1,6 @@
 import Head from "next/head";
 import React, { useEffect, useState } from "react";
+import Loader from "./Loader";
 import WeatherCard from "./WeatherCard";
 
 const Main = () => {
@@ -27,7 +28,7 @@ const Main = () => {
     }
   };
   const [celcius, setCelcius] = useState(true);
-  const [search, setSearch] = useState(true);
+  const [search, setSearch] = useState(false);
   const [searchKey, setSearchKey] = useState("");
   const [data, setData] = useState([
     {
@@ -197,25 +198,27 @@ const Main = () => {
     },
   ]);
 
-  const fetchData = async (woeid: any) => {
+  const fetchData = async (woeid: number) => {
     const response = await fetch(
-      `http://www.metaweather.com/api/location/${
-        woeid ? woeid.toString() : "44418"
-      }/`
+      `https://www.metaweather.com/api/location/${woeid.toString()}/`
     );
     const data = await response.json();
-    setData(data);
+    setData([data]);
   };
+
+  const [loading, setLoading] = useState(false);
 
   const fetchWeather = async (e: any) => {
     e.preventDefault();
     const response = await fetch(
-      `http://www.metaweather.com/api/location/search/?query=${searchKey}`
+      `https://www.metaweather.com/api/location/search/?query=${searchKey}`
     );
     const data = await response.json();
     setSearch(false);
+    setLoading(true);
     setSearchKey("");
-    return data[0].woeid;
+    fetchData(data[0].woeid);
+    setLoading(false);
   };
 
   // create a function to change celcius to farhenreit
@@ -225,7 +228,7 @@ const Main = () => {
   };
 
   useEffect(() => {
-    fetchData(null);
+    fetchData(44418);
   }, []);
 
   console.log(data);
@@ -259,7 +262,13 @@ const Main = () => {
                   className="flex-1 outline-none bg-transparent  text-xl p-2"
                 />
               </div>
-              <button className="px-3 py-2 bg-[#3C47E9]" onClick={fetchWeather}>
+              <button
+                type="submit"
+                className="px-3 py-2 bg-[#3C47E9]"
+                onClick={(e) => {
+                  fetchWeather(e);
+                }}
+              >
                 Search
               </button>
             </div>
@@ -270,7 +279,7 @@ const Main = () => {
             {/* Buttons */}
             <div className="flex items-center justify-around">
               <button
-                className="px-4 py-2 bg-[#6E707A] rounded-sm shadow-md hover:opacity-75 active:opacity-90 transition"
+                className="px-4 py-2 bg-[#6E707A] rounded-sm shadow-md hover:opacity-75 active:opacity-90 transition z-50"
                 onClick={() => setSearch(true)}
               >
                 Search for places
@@ -284,37 +293,51 @@ const Main = () => {
               <div className="flex justify-center items-center mx-auto my-auto mb-14">
                 <img
                   src="/Cloud-Background.png"
-                  className="opacity-10 object-contain absolute"
+                  className="opacity-10 object-contain absolute "
                   alt=""
                   width="100%"
                 />
-                <img
-                  src={changeImage(
-                    data[0].consolidated_weather[0].weather_state_name
-                  )}
-                  alt=""
-                />
+                {loading ? (
+                  <>
+                    <Loader />
+                  </>
+                ) : (
+                  <img
+                    src={changeImage(
+                      data[0]?.consolidated_weather[0]?.weather_state_name
+                    )}
+                    alt=""
+                  />
+                )}
               </div>
               <div className="flex flex-col justify-center items-center space-y-9">
-                <h1 className="text-5xl">
-                  <span className="text-7xl font-bold">
-                    {celcius
-                      ? data[0].consolidated_weather[0].the_temp.toFixed(0)
-                      : changeToFarhenreit(
-                          data[0].consolidated_weather[0].the_temp.toFixed(0)
-                        )}
-                  </span>
-                  °{celcius ? "C" : "F"}
-                </h1>
+                {loading ? (
+                  <>
+                    <Loader />
+                  </>
+                ) : (
+                  <h1 className="text-5xl">
+                    <span className="text-7xl font-bold">
+                      {celcius
+                        ? data[0]?.consolidated_weather[0]?.the_temp.toFixed(0)
+                        : changeToFarhenreit(
+                            data[0]?.consolidated_weather[0]?.the_temp.toFixed(
+                              0
+                            )
+                          )}
+                    </span>
+                    °{celcius ? "C" : "F"}
+                  </h1>
+                )}
                 <h2 className="text-3xl text-[#A09FB1]">
-                  {data[0].consolidated_weather[0].weather_state_name}
+                  {data[0]?.consolidated_weather[0]?.weather_state_name}
                 </h2>
                 <h3 className="text-md text-[#A09FB1]">
-                  Today • {data[0].consolidated_weather[0].applicable_date}
+                  Today • {data[0]?.consolidated_weather[0]?.applicable_date}
                 </h3>
                 <h6 className="text-sm flex justify-center items-center text-[#88869D]">
                   <span className="material-icons text-sm">place</span>
-                  {data[0].title}
+                  {data[0]?.title}
                 </h6>
               </div>
             </div>
@@ -349,43 +372,48 @@ const Main = () => {
         <div className="flex flex-wrap items-stretch justify-around space-y-4 space-x-5 md:space-x-5 mx-5">
           <WeatherCard
             data={data}
-            date={data[0].consolidated_weather[0].applicable_date}
-            minTemp={data[0].consolidated_weather[0].min_temp.toFixed(0)}
-            maxTemp={data[0].consolidated_weather[0].max_temp.toFixed(0)}
-            weather={data[0].consolidated_weather[0].weather_state_name}
+            date={data[0]?.consolidated_weather[0]?.applicable_date}
+            minTemp={data[0]?.consolidated_weather[0]?.min_temp.toFixed(0)}
+            maxTemp={data[0]?.consolidated_weather[0]?.max_temp.toFixed(0)}
+            weather={data[0]?.consolidated_weather[0]?.weather_state_name}
             celcius={celcius}
+            loading={loading}
           />
           <WeatherCard
             data={data}
-            date={data[0].consolidated_weather[1].applicable_date}
-            minTemp={data[0].consolidated_weather[1].min_temp.toFixed(0)}
-            maxTemp={data[0].consolidated_weather[1].max_temp.toFixed(0)}
-            weather={data[0].consolidated_weather[1].weather_state_name}
+            date={data[0]?.consolidated_weather[1]?.applicable_date}
+            minTemp={data[0]?.consolidated_weather[1]?.min_temp.toFixed(0)}
+            maxTemp={data[0]?.consolidated_weather[1]?.max_temp.toFixed(0)}
+            weather={data[0]?.consolidated_weather[1]?.weather_state_name}
             celcius={celcius}
+            loading={loading}
           />
           <WeatherCard
             data={data}
-            date={data[0].consolidated_weather[2].applicable_date}
-            minTemp={data[0].consolidated_weather[2].min_temp.toFixed(0)}
-            maxTemp={data[0].consolidated_weather[2].max_temp.toFixed(0)}
-            weather={data[0].consolidated_weather[2].weather_state_name}
+            date={data[0]?.consolidated_weather[2]?.applicable_date}
+            minTemp={data[0]?.consolidated_weather[2]?.min_temp.toFixed(0)}
+            maxTemp={data[0]?.consolidated_weather[2]?.max_temp.toFixed(0)}
+            weather={data[0]?.consolidated_weather[2]?.weather_state_name}
             celcius={celcius}
+            loading={loading}
           />
           <WeatherCard
             data={data}
-            date={data[0].consolidated_weather[3].applicable_date}
-            minTemp={data[0].consolidated_weather[3].min_temp.toFixed(0)}
-            maxTemp={data[0].consolidated_weather[3].max_temp.toFixed(0)}
-            weather={data[0].consolidated_weather[3].weather_state_name}
+            date={data[0]?.consolidated_weather[3]?.applicable_date}
+            minTemp={data[0]?.consolidated_weather[3]?.min_temp.toFixed(0)}
+            maxTemp={data[0]?.consolidated_weather[3]?.max_temp.toFixed(0)}
+            weather={data[0]?.consolidated_weather[3]?.weather_state_name}
             celcius={celcius}
+            loading={loading}
           />
           <WeatherCard
             data={data}
-            date={data[0].consolidated_weather[4].applicable_date}
-            minTemp={data[0].consolidated_weather[4].min_temp.toFixed(0)}
-            maxTemp={data[0].consolidated_weather[4].max_temp.toFixed(0)}
-            weather={data[0].consolidated_weather[4].weather_state_name}
+            date={data[0]?.consolidated_weather[4]?.applicable_date}
+            minTemp={data[0]?.consolidated_weather[4]?.min_temp.toFixed(0)}
+            maxTemp={data[0]?.consolidated_weather[4]?.max_temp.toFixed(0)}
+            weather={data[0]?.consolidated_weather[4]?.weather_state_name}
             celcius={celcius}
+            loading={loading}
           />
         </div>
 
@@ -396,7 +424,7 @@ const Main = () => {
             <h4 className="text-sm">Wind Status</h4>
             <h1 className="text-3xl">
               <span className="text-5xl font-bold">
-                {data[0].consolidated_weather[0].wind_speed.toFixed(0)}
+                {data[0]?.consolidated_weather[0]?.wind_speed.toFixed(0)}
               </span>{" "}
               mph
             </h1>
@@ -405,22 +433,22 @@ const Main = () => {
             <h4 className="text-sm">Humidity</h4>
             <h1 className="text-3xl">
               <span className="text-5xl font-bold">
-                {data[0].consolidated_weather[0].humidity}
+                {data[0]?.consolidated_weather[0]?.humidity}
               </span>{" "}
               %
             </h1>
             <progress
-              value={data[0].consolidated_weather[0].humidity}
+              value={data[0]?.consolidated_weather[0]?.humidity}
               max="100"
             >
-              {data[0].consolidated_weather[0].humidity}%
+              {data[0]?.consolidated_weather[0]?.humidity}%
             </progress>
           </div>
           <div className="p-5 bg-[#1E213A] rounded-sm justify-center flex items-center flex-col space-y-2 w-[328px]">
             <h4 className="text-sm">Visibility</h4>
             <h1 className="text-3xl">
               <span className="text-5xl font-bold">
-                {data[0].consolidated_weather[0].visibility.toFixed(0)}
+                {data[0]?.consolidated_weather[0]?.visibility.toFixed(0)}
               </span>{" "}
               miles
             </h1>
@@ -429,7 +457,7 @@ const Main = () => {
             <h4 className="text-sm">Air Pressure</h4>
             <h1 className="text-3xl">
               <span className="text-5xl font-bold">
-                {data[0].consolidated_weather[0].air_pressure}
+                {data[0]?.consolidated_weather[0]?.air_pressure}
               </span>{" "}
               mb
             </h1>
